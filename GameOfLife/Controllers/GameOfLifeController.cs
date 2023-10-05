@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
+﻿using System.Web.Http;
 
 namespace GameOfLife.Controllers
 {
@@ -19,31 +14,7 @@ namespace GameOfLife.Controllers
         public IHttpActionResult StartGame(int row, int col, int rows, int columns)
         {
             var neighborsCount = CountTheNeighbors(row, col, rows, columns);
-
-            if (grid[row, col] == 1)
-            {
-                if (neighborsCount < 2)
-                {
-                    nextGrid[row, col] = 0;
-                }
-                else if (neighborsCount == 2 || neighborsCount == 3)
-                {
-                    nextGrid[row, col] = 1;
-                }
-                else if (neighborsCount > 3)
-                {
-                    nextGrid[row, col] = 0;
-                }
-            }
-            else if (grid[row, col] == 0)
-            {
-                if (neighborsCount == 3)
-                {
-                    nextGrid[row, col] = 1;
-                }
-            }
-
-            return Ok(nextGrid);
+            return Ok(neighborsCount);
         }
 
         private int CountTheNeighbors(int row, int col, int rows, int columns)

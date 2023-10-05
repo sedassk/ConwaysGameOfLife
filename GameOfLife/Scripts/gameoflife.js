@@ -43,31 +43,44 @@ function setCellState() {
     var cellClass = this.getAttribute("class");
     if (cellClass.indexOf("alive") > -1) {
         this.setAttribute("class", "dead");
-        grid[row][col] = 0;
+        $("#" + this.id).attr("data-status", 0);
     } else {
         this.setAttribute("class", "alive");
-        grid[row][col] = 1;
+        $("#" + this.id).attr("data-status", 1);
     }
 }
 
 function setButtonActions() {
     var startButton = document.getElementById('start');
-    startButton.onclick = startTheGame;
+    startButton.onclick = startButtonAction;
 }
 
-function startTheGame() {
-
-    if (!isPlaying) {
-        for (var i = 0; i < rows; i++) {
-            for (var j = 0; j < cols; j++) {
-                startNeighborGeneration(i, j);
-            }
-        }
-
-        timer = setTimeout(startTheGame, generationSpeed);
-
+function startButtonAction() {
+    if (isPlaying) {
+        isPlaying = false;
+        clearTimeout(timer);
+    } else {
         isPlaying = true;
+        playTheGame();
     }
+}
+
+function playTheGame() {
+    startGeneration();
+
+    if (isPlaying) {
+        timer = setTimeout(playTheGame, reproductionTime);
+    }
+}
+
+function startGeneration() {
+    for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < cols; j++) {
+            startNeighborGeneration(i, j);
+        }
+    }
+
+    refreshGrid();
 }
 
 function startNeighborGeneration(row, col) {
@@ -78,19 +91,29 @@ function startNeighborGeneration(row, col) {
         dataType: 'JSON',
         data: { row: row, col: col, rows: rows, columns: cols},
         success: function (result) {
-            grid = result;
-            refreshGrid();
+            var neighborsCount = result;
+            if ($("#"+ row + "-" + col).data("status") == 1) {
+                if (neighborsCount < 2) {
+                    $("#" + row + "-" + col).data("status", 0);
+                } else if (neighborsCount == 2 || neighborsCount == 3) {
+                    $("#" + row + "-" + col).data("status", 1);
+                } else if (neighborsCount > 3) {
+                    $("#" + row + "-" + col).data("status", 0);
+                }
+            } else if ($("#" + row + "-" + col).data("status") == 0) {
+                if (neighborsCount == 3) {
+                    $("#" + row + "-" + col).data("status", 1);
+                }
+            }
         },
     });
-
-    isPlaying = false;
 }
 
 function refreshGrid() {
     for (var i = 0; i < rows; i++) {
         for (var j = 0; j < cols; j++) {
             var gridCell = document.getElementById(i + "-" + j);
-            if (grid[i][j] == 0) {
+            if ($("#" + i + "-" + j).data("status") == 0) {
                 gridCell.setAttribute("class", "dead");
             } else {
                 gridCell.setAttribute("class", "alive");
