@@ -82,6 +82,8 @@ function startNeighborGeneration(row, col) {
             refreshGrid();
         },
     });
+
+    isPlaying = false;
 }
 
 function refreshGrid() {
